@@ -5,46 +5,6 @@ vmeter(x) = attach(x, envelop(x) : vbargraph("[03][unit:dB]", -70, +5));
 inmeter(x) = attach(x, envelop(x) : hbargraph("[00][unit:dB]", -70, +5));
 outmeter(x) = attach(x, envelop(x) : hbargraph("[99][unit:dB]", -70, +5));
 
-// <1,2,4,...,N signals> <:
-// fdnrev0(MAXDELAY,delays,BBSO,freqs,durs,loopgainmax,nonl) :>
-// <1,2,4,...,N signals>
-// ```
-//
-// Where:
-//
-// * `N`: 2, 4, 8, ...  (power of 2)
-// * `MAXDELAY`: power of 2 at least as large as longest delay-line length
-// * `delays`: N delay lines, N a power of 2, lengths perferably coprime
-// * `BBSO`: odd positive integer = order of bandsplit desired at freqs
-// * `freqs`: NB-1 crossover frequencies separating desired frequency bands
-// * `durs`: NB decay times (t60) desired for the various bands
-// * `loopgainmax`: scalar gain between 0 and 1 used to "squelch" the reverb
-// * `nonl`: nonlinearity (0 to 0.999..., 0 being linear)
-//
-// #### Reference
-
-//process = re.satrev;
-
-
-//-------------------------`(dm.)fdnrev0_demo`---------------------------
-// A reverb application using `fdnrev0`.
-//
-// #### Usage
-//
-// ```
-// _,_ : fdnrev0_demo(N,NB,BBSO) : _,_
-// ```
-//
-// Where:
-//
-// * `n`: Feedback Delay Network (FDN) order / number of delay lines used =
-//	order of feedback matrix / 2, 4, 8, or 16 [extend primes array below for
-//	32, 64, ...]
-// * `nb`: Number of frequency bands / Number of (nearly) independent T60 controls
-//	/ Integer 3 or greater
-// * `bbso` = Butterworth band-split order / order of lowpass/highpass bandsplit
-//	used at each crossover freq / odd positive integer
-//------------------------------------------------------------
 gs_fdnrev(N,NB,BBSO) = _ : inmeter <: re.fdnrev0(MAXDELAY,delays,BBSO,freqs,durs,loopgainmax,nonl) :> *(gain), *(gain) : outmeter, outmeter
 with{
 	MAXDELAY = 8192; // sync w delays and prime_power_delays above
