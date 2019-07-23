@@ -2,9 +2,9 @@
 
 ## 1987 - Luigi Nono, Risonanze erranti - Faust Code
 
-Live Electronics process:
+Live Electronics process prototype:
 
- - [ ] Reverb 4"
+ - [x] Reverb 4"
  - [ ] Reverb 10~80"
  - [ ] Harmonizer
  - [ ] Delay Bank
