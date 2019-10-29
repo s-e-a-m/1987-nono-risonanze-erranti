@@ -4,7 +4,7 @@ import("stdfaust.lib");
 
 insel = ba.selectn(18,channel) : _
   with{
-    channel = nentry("[0] Input Channel Selector
+    channel = nentry("[01] Input Channel Selector
                     [style:menu{'Analog IN 1':0;
                     'Analog IN 2':1;
                     'Analog IN 3':2;
@@ -27,9 +27,9 @@ insel = ba.selectn(18,channel) : _
 
 // ----------------------------------------------------------------- PRE SECTION
 
-presec = pre_group(ba.bypass1(lop,fi.lowpass(HO,HC)) : ba.bypass1(hip,fi.highpass(LO,LC)) : gain : rpol)
+presec = hgroup("[06] PRE SECTION", ba.bypass1(lop,fi.lowpass(HO,HC)) : ba.bypass1(hip,fi.highpass(LO,LC))) : hgroup("[07]PHASE & GAIN" , gain : rpol)
+
 with{
-	pre_group(x) = hgroup("[1] PRE SECTION ",x);
 
   lop = 1 - checkbox("[03] HC");
 
@@ -78,78 +78,32 @@ with{
 
 // ----------------------------------------------------------------------- FADER
 
-vmeter(x)		= attach(x, envelop(x) : vbargraph("[5][unit:dB]", -70, +5));
-hmeter(x)		= attach(x, envelop(x) : hbargraph("[5][unit:dB]", -70, +5));
+vmeter(x)		= attach(x, envelop(x) : vbargraph("[02][unit:dB]", -70, +5));
+hmeter(x)		= attach(x, envelop(x) : hbargraph("[05][unit:dB]", -70, +5));
 
 envelop = abs : max ~ -(1.0/ma.SR) : max(ba.db2linear(-70)) : ba.linear2db;
 
-fader	= *(hgroup("[10]", vslider("[1]", 0, -96, +12, 0.1)) : ba.db2linear : si.smoo);
+fader	= *(vslider("[01]", 0, -96, +12, 0.1)) : ba.db2linear : si.smoo ;
 
-// ------------------------------------------------------------------------ MUTE
+// ------------------------------------------------------------------------ SENDS
 
-contralto = vgroup("[01] CONTRALTO",
-           vgroup("", insel : hmeter) : presec : peq <:
-           hgroup("[90] CONTRALTO",
-           fader : met_group(vmeter)))
-             with{
-    pf_group(x) = vgroup("[90]", x);
-    met_group(x) = hgroup("[97]",x);
-    w = v+(01);
-  };
+  adelay = *(checkbox("[01] DELAY"));
+  arev4  = *(checkbox("[02] REVERB 4 SEC"));
+  arev80 = *(checkbox("[03] REVERB 10~80 SEC"));
+  aharm  = *(checkbox("[04] HARMONIZER"));
+  ah1    = *(checkbox("[05] HALAPHON 1"));
+  ah2    = *(checkbox("[06] HALAPHON 2"));
+  ah3    = *(checkbox("[07] HALAPHON 3"));
 
-flauti = vgroup("[02] FLAUTI",
-           vgroup("", insel : hmeter) : presec : peq <:
-           hgroup("[90] FLAUTI",
-           fader : met_group(vmeter)))
-             with{
-    pf_group(x) = vgroup("[90]", x);
-    met_group(x) = hgroup("[97]",x);
-    w = v+(01);
-  };
+sends = vgroup("[99]PROCESSES" , adelay, arev4, arev80, aharm, ah1, ah2, ah3) ;
 
-tuba = vgroup("[03] TUBA",
-           vgroup("", insel : hmeter) : presec : peq <:
-           hgroup("[90] TUBA",
-           fader : met_group(vmeter)))
-             with{
-    pf_group(x) = vgroup("[90]", x);
-    met_group(x) = hgroup("[97]",x);
-    w = v+(01);
-
-};
-
-csarde = vgroup("[04] CAMPANE SARDE",
-           vgroup("", insel : hmeter) : presec : peq <:
-           hgroup("[90] CAMPANE SARDE",
-           fader : met_group(vmeter)))
-             with{
-    pf_group(x) = vgroup("[90]", x);
-    met_group(x) = hgroup("[97]",x);
-    w = v+(01);
-
-};
-
-    bongos = vgroup("[05] BONGOS",
-           vgroup("", insel : hmeter) : presec : peq <:
-           hgroup("[90] BONGOS",
-           fader : met_group(vmeter)))
-             with{
-    pf_group(x) = vgroup("[90]", x);
-    met_group(x) = hgroup("[97]",x);
-    w = v+(01);
-
-};
-
-crotali = vgroup("[06] CROTALI",
-           vgroup("", insel : hmeter) : presec : peq <:
-           hgroup("[90] CROTALI",
-           fader : met_group(vmeter)))
-             with{
-    pf_group(x) = vgroup("[90]", x);
-    met_group(x) = hgroup("[97]",x);
-    w = v+(01);
-
-  };
+// ------------------------------------------------------------------------ INSTRUMENTS;
+contralto = vgroup("[01] CONTRALTO", insel : hmeter : presec : peq <: hgroup("[90] CONTRALTO", fader <: vmeter , sends)) ;
+flauti    = vgroup("[02] FLAUTI", insel : hmeter : presec : peq <: hgroup("[90] FLAUTI", fader <: vmeter , sends)) ;
+tuba      = vgroup("[03] TUBA", insel : hmeter : presec : peq <: hgroup("[90] TUBA", fader <: vmeter , sends)) ;
+csarde    = vgroup("[04] CAMPANE SARDE", insel : hmeter : presec : peq <: hgroup("[90] CAMPANE SARDE", fader <: vmeter , sends)) ;
+bongos    = vgroup("[05] BONGOS", insel : hmeter : presec : peq <: hgroup("[90] BONGOS", fader <: vmeter , sends)) ;
+crot      = vgroup("[06] CROTALI", insel : hmeter : presec : peq <: hgroup("[90] CROTALI", fader <: vmeter , sends)) ;
 
 h1ramp = os.lf_sawpos(1.0/(hslider("[01] h1 time", 3.0, -23.0, 23.0, 0.01)));
 h2ramp = os.lf_sawpos(1.0/(hslider("[01] h2 time", 3.0, -23.0, 23.0, 0.01)));
@@ -173,8 +127,16 @@ hal1 = vgroup("h1", sp.spat(4, h1ramp, h1dist) : h1meters);
 hal2 = vgroup("h2", sp.spat(4, h2ramp, h2dist) : h2meters);
 hal3 = vgroup("h3", sp.spat(4, h3ramp, h3dist) : h3meters);
 
-instruments = tgroup("INPUTS", si.bus(18) <: hgroup("[01] INPUTS", contralto, flauti, tuba, csarde, bongos, crotali));// : hgroup("[02]", hal1, hal2, hal3, !, !, !) :> si.bus(4);
+instruments = si.bus(18) <: hgroup("[01] INPUTS", contralto, flauti, tuba, csarde, bongos, crot) :> si.bus(8) ;// : hgroup("[02]", hal1, hal2, hal3, !, !, !) :> si.bus(4);
 
+meterbridge = vgroup("[02] METERS",
+vgroup("[01] DIRECT" , hmeter ) ,
+vgroup("[02] DELAY" , hmeter) ,
+vgroup("[03] REVERB 4 SEC" , hmeter) ,
+vgroup("[04] REVERB 10~80 SEC" , hmeter) ,
+vgroup("[05] HARMONIZER" , hmeter) ,
+vgroup("[06] HALAPHON 1" , hmeter) ,
+vgroup("[07] HALAPHON 2" , hmeter) ,
+vgroup("[08] HALAPHON 3" , hmeter) ) ;
 
-
-process = instruments ;
+process = tgroup("PANELS", instruments : meterbridge) ;
