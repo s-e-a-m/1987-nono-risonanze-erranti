@@ -27,23 +27,24 @@ insel = ba.selectn(18,channel) : _
 
 // ----------------------------------------------------------------- PRE SECTION
 
-presec = pre_group(ba.bypass1(lop,fi.lowpass(HO,HC)) : ba.bypass1(hip,fi.highpass(LO,LC))) : gain : rpol
+presec = pre_group(ba.bypass1(lop,fi.lowpass(HO,HC)) : ba.bypass1(hip,fi.highpass(LO,LC)) : gain : rpol)
 with{
-	pre_group(x) = vgroup("[1] PRE SECTION ",x);
+	pre_group(x) = hgroup("[1] PRE SECTION ",x);
 
-  lop = 1 - checkbox("[3] HC");
+  lop = 1 - checkbox("[03] HC");
 
   HO = 2;//nentry("order", 2, 1, 8, 1);
-  HC = hslider("[1] High Cut [unit:Hz]", 8000, 20, 20000, 1) : si.smoo;
+  HC = hslider ("[04] High Cut [unit:Hz] [style:knob] [scale:exp]", 8000, 20, 20000, 0.1) : si.smoo;
 
-  hip = 1 - checkbox("[4] LC");
+  hip = 1 - checkbox("[01] LC");
 
   LO = 2;//nentry("order", 2, 1, 8, 1);
-  LC = hslider("[2] Low Cut [unit:Hz]", 500, 20, 20000, 1) : si.smoo;
+  LC = hslider ("[02] Low Cut [unit:Hz] [style:knob] [scale:exp]", 500, 20, 20000, 0.1) : si.smoo;
 
-	gain = pre_group(*(hslider("[5] Gain [unit:dB]", 0, -24, +24, 0.1) : ba.db2linear : si.smoo));
+    rpol = *(1 - (checkbox("[05] Reverse Phase")*(2)));
 
-	rpol = pre_group(*(1 - (checkbox("[6] Reverse Phase")*(2))));
+    gain = *(hslider("[06] Gain [unit:dB] [style:knob]", 0, -24, +24, 0.1) : ba.db2linear : si.smoo);
+
 };
 
 // ------------------------------------------------------------------ EQ SECTION
@@ -138,4 +139,4 @@ hal1 = vgroup("h1", sp.spat(4, h1ramp, h1dist) : h1meters);
 hal2 = vgroup("h2", sp.spat(4, h2ramp, h2dist) : h2meters);
 hal3 = vgroup("h3", sp.spat(4, h3ramp, h3dist) : h3meters);
 
-process = si.bus(18) <: contralto, flauti, tuba : hgroup("", hal1, hal2, hal3) :> si.bus(4);
+process = si.bus(18) <: hgroup("[01] INPUTS", contralto, flauti, tuba) : hgroup("[02]", hal1, hal2, hal3) :> si.bus(4);
