@@ -87,7 +87,7 @@ fader	= *(hgroup("[10]", vslider("[1]", 0, -96, +12, 0.1)) : ba.db2linear : si.s
 
 // ------------------------------------------------------------------------ MUTE
 
-contralto = vgroup("[1] CONTRALTO",
+contralto = vgroup("[01] CONTRALTO",
            vgroup("", insel : hmeter) : presec : peq <:
            hgroup("[90] CONTRALTO",
            fader : met_group(vmeter)))
@@ -97,7 +97,7 @@ contralto = vgroup("[1] CONTRALTO",
     w = v+(01);
   };
 
-flauti = vgroup("[1] FLAUTI",
+flauti = vgroup("[02] FLAUTI",
            vgroup("", insel : hmeter) : presec : peq <:
            hgroup("[90] FLAUTI",
            fader : met_group(vmeter)))
@@ -107,7 +107,7 @@ flauti = vgroup("[1] FLAUTI",
     w = v+(01);
   };
 
-tuba = vgroup("[1] TUBA",
+tuba = vgroup("[03] TUBA",
            vgroup("", insel : hmeter) : presec : peq <:
            hgroup("[90] TUBA",
            fader : met_group(vmeter)))
@@ -115,6 +115,40 @@ tuba = vgroup("[1] TUBA",
     pf_group(x) = vgroup("[90]", x);
     met_group(x) = hgroup("[97]",x);
     w = v+(01);
+
+};
+
+csarde = vgroup("[04] CAMPANE SARDE",
+           vgroup("", insel : hmeter) : presec : peq <:
+           hgroup("[90] CAMPANE SARDE",
+           fader : met_group(vmeter)))
+             with{
+    pf_group(x) = vgroup("[90]", x);
+    met_group(x) = hgroup("[97]",x);
+    w = v+(01);
+
+};
+
+    bongos = vgroup("[05] BONGOS",
+           vgroup("", insel : hmeter) : presec : peq <:
+           hgroup("[90] BONGOS",
+           fader : met_group(vmeter)))
+             with{
+    pf_group(x) = vgroup("[90]", x);
+    met_group(x) = hgroup("[97]",x);
+    w = v+(01);
+
+};
+
+crotali = vgroup("[06] CROTALI",
+           vgroup("", insel : hmeter) : presec : peq <:
+           hgroup("[90] CROTALI",
+           fader : met_group(vmeter)))
+             with{
+    pf_group(x) = vgroup("[90]", x);
+    met_group(x) = hgroup("[97]",x);
+    w = v+(01);
+
   };
 
 h1ramp = os.lf_sawpos(1.0/(hslider("[01] h1 time", 3.0, -23.0, 23.0, 0.01)));
@@ -139,4 +173,8 @@ hal1 = vgroup("h1", sp.spat(4, h1ramp, h1dist) : h1meters);
 hal2 = vgroup("h2", sp.spat(4, h2ramp, h2dist) : h2meters);
 hal3 = vgroup("h3", sp.spat(4, h3ramp, h3dist) : h3meters);
 
-process = si.bus(18) <: hgroup("[01] INPUTS", contralto, flauti, tuba) : hgroup("[02]", hal1, hal2, hal3) :> si.bus(4);
+instruments = tgroup("INPUTS", si.bus(18) <: hgroup("[01] INPUTS", contralto, flauti, tuba, csarde, bongos, crotali));// : hgroup("[02]", hal1, hal2, hal3, !, !, !) :> si.bus(4);
+
+
+
+process = instruments ;
