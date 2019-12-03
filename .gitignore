@@ -1,7 +1,7 @@
 ### Faust ###
 *.app
 faust.*
-*-svg/
+#*-svg/
 *.vst
 
 # Created by https://www.gitignore.io/api/tex,osx,macos,linux,latex,jekyll,windows
