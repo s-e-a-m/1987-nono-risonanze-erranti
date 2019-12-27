@@ -1,8 +1,17 @@
 import("stdfaust.lib");
 import("../faust-libraries/seam.lib");
 
-// ------------------------------------------------------------------------ SENDS
+// ----------------------------------------------------------------- INSTRUMENTS
+contr = vgroup("[01] CONTRALTO", chstrip <: hgroup("[90] CONTRALTO", (*(fader) : vmeter), sends));
+flaut = vgroup("[02] FLAUTI", chstrip <: hgroup("[90] FLAUTI", (*(fader) : vmeter), sends));
+btuba = vgroup("[03] TUBA", chstrip <: hgroup("[90] TUBA", (*(fader) : vmeter), sends));
+csard = vgroup("[04] CAMPANE SARDE", chstrip <: hgroup("[90] CAMPANE SARDE", (*(fader) : vmeter), sends));
+bongo = vgroup("[05] BONGOS", chstrip <: hgroup("[90] BONGOS", (*(fader) : vmeter), sends));
+crota = vgroup("[06] CROTALI", chstrip <: hgroup("[90] CROTALI", (*(fader) : vmeter), sends));
 
+instruments = si.bus(18) <: hgroup("[01] INSTRUMENTS", contr, flaut, btuba, csard, bongo, crota) :> si.bus(8) ;
+
+// ----------------------------------------------------------------------- SENDS
 adel = checkbox("[01] DELAY") : si.smoo;
 are4 = checkbox("[02] REVERB 4 SEC") : si.smoo;
 ar80 = checkbox("[03] REVERB 10~80 SEC") : si.smoo;
@@ -11,18 +20,7 @@ aha1 = checkbox("[05] HALAPHON 1") : si.smoo;
 aha2 = checkbox("[06] HALAPHON 2") : si.smoo;
 aha3 = checkbox("[07] HALAPHON 3") : si.smoo;
 
-sends = vgroup("[99]PROCESSES SENDS" , *(adel), *(are4), *(ar80), *(ahar), *(aha1), *(aha2), *(aha3)) ;
-
-// ----------------------------------------------------------------- INSTRUMENTS
-
-contr = vgroup("[01] CONTRALTO", chstrip <: hgroup("[90] CONTRALTO", *(fader)<: vmeter , sends)) ;
-flaut = vgroup("[02] FLAUTI", chstrip <: hgroup("[90] FLAUTI", *(fader) <: vmeter , sends)) ;
-btuba = vgroup("[03] TUBA", chstrip <: hgroup("[90] TUBA", *(fader) <: vmeter , sends)) ;
-csard = vgroup("[04] CAMPANE SARDE", chstrip <: hgroup("[90] CAMPANE SARDE", *(fader) <: vmeter , sends)) ;
-bongo = vgroup("[05] BONGOS", chstrip <: hgroup("[90] BONGOS", *(fader) <: vmeter , sends)) ;
-crota = vgroup("[06] CROTALI", chstrip <: hgroup("[90] CROTALI", *(fader) <: vmeter , sends)) ;
-
-instruments = si.bus(18) <: hgroup("[01] INPUTS", contr, flaut, btuba, csard, bongo, crota) :> si.bus(8) ;
+sends = vgroup("[99] SENDS" , *(adel), *(are4), *(ar80), *(ahar), *(aha1), *(aha2), *(aha3)) ;
 
 // ----------------------------------------------------------------- ELECTRONICS
 // ---------------------------------------------------------------------- DELAYS
@@ -33,15 +31,14 @@ fbgain2 = fbgroup(vslider("Fb 3", 0.,0.,1.,0.1) : si.smoo);
 fbgain3 = fbgroup(vslider("Fb 5", 0.,0.,1.,0.1) : si.smoo);
 fbgain4 = fbgroup(vslider("Fb 7", 0.,0.,1.,0.1) : si.smoo);
 
-delbank = _ <: (_+_ <: de.delay(ba.sec2samp(5.0),ba.sec2samp(5.0)), de.delay(ba.sec2samp(5.5),ba.sec2samp(5.5)))~*(fbgain1),
-               (_+_ <: de.delay(ba.sec2samp(6.2),ba.sec2samp(6.2)), de.delay(ba.sec2samp(6.6),ba.sec2samp(6.6)))~*(fbgain2),
-               (_+_ <: de.delay(ba.sec2samp(7.3),ba.sec2samp(7.3)), de.delay(ba.sec2samp(7.7),ba.sec2samp(7.7)))~*(fbgain3),
-               (_+_ <: de.delay(ba.sec2samp(8.2),ba.sec2samp(8.2)), de.delay(ba.sec2samp(9.1),ba.sec2samp(9.1)))~*(fbgain4):
+delbank = _ <: (+<: de.delay(ba.sec2samp(5.0),ba.sec2samp(5.0)), de.delay(ba.sec2samp(5.5),ba.sec2samp(5.5)))~*(fbgain1),
+               (+<: de.delay(ba.sec2samp(6.2),ba.sec2samp(6.2)), de.delay(ba.sec2samp(6.6),ba.sec2samp(6.6)))~*(fbgain2),
+               (+<: de.delay(ba.sec2samp(7.3),ba.sec2samp(7.3)), de.delay(ba.sec2samp(7.7),ba.sec2samp(7.7)))~*(fbgain3),
+               (+<: de.delay(ba.sec2samp(8.2),ba.sec2samp(8.2)), de.delay(ba.sec2samp(9.1),ba.sec2samp(9.1)))~*(fbgain4):
                _, ro.cross(2), _, _, ro.cross(3) : si.bus(5), ro.cross(2), _; // route the delayed signal to 1 3 2 4 5 7 8 6
 
 // ----------------------------------------------------------------- HALAPHON x3
 // ---------------------------------- gli halaphon dovvrebbero stare in nono.lib
-
 h1ramp = os.lf_sawpos(1.0/(hslider("[01] h1 time", 3.0, -23.0, 23.0, 0.01)));
 h2ramp = os.lf_sawpos(1.0/(hslider("[01] h2 time", 3.0, -23.0, 23.0, 0.01)));
 h3ramp = os.lf_sawpos(1.0/(hslider("[01] h3 time", 3.0, -23.0, 23.0, 0.01)));
@@ -77,14 +74,14 @@ harmonizer = vgroup("HARMONIZER", ef.transpose(
 // ---------------------------------------------------------------- METER BRIDGE
 
 meterbridge = vgroup("[02] METER BRIDGE",
-              vgroup("[01] DIRECT", hmeter),
-              vgroup("[02] DELAY", hmeter),
-              vgroup("[03] REVERB 10~80 sec", hmeter),
-              vgroup("[04] REVERB 4 sec", hmeter),
-              vgroup("[05] HARMONIZER", hmeter),
-              vgroup("[06] HALAPHON 1", hmeter),
-              vgroup("[07] HALAPHON 2", hmeter),
-              vgroup("[08] HALAPHON 3", hmeter));
+              vgroup("[01] DIRECT", shmeter),
+              vgroup("[02] DELAY", shmeter),
+              vgroup("[03] REVERB 10~80 sec", shmeter),
+              vgroup("[04] REVERB 4 sec", shmeter),
+              vgroup("[05] HARMONIZER", shmeter),
+              vgroup("[06] HALAPHON 1", shmeter),
+              vgroup("[07] HALAPHON 2", shmeter),
+              vgroup("[08] HALAPHON 3", shmeter));
 
 // -----------------------------------------------------------------  DIRECT
 
@@ -120,7 +117,7 @@ with{
 	// (can cause infinite loop:) with { db2linear(x) = pow(10, x/20.0); };
 };
 
-rev4 =  _ <: reverb4(16,5,3) : _,_;
+rev4 =  _ <: reverb4(16,5,3);
 
 rev80 = _ <: si.bus(8);
 
