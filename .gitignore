@@ -1,3 +1,6 @@
+_no/
+_builds/
+
 ### Faust ###
 *.app
 faust.*

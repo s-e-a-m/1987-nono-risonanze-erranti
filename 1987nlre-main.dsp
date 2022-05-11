@@ -44,8 +44,8 @@ D8 = ba.sec2samp(9.1);
 
 dlbk = delbank : _, ro.cross(2), _, _, ro.cross(3) : si.bus(5), ro.cross(2), _; // route the delayed signal to 1 3 2 4 5 7 8 6
 
-// ---------------------------------------------------------------- HALAPHONE x3
-// --------------------------------- gli halaphone dovvrebbero stare in nono.lib
+// ----------------------------------------------------------------- HALAPHON x3
+// ---------------------------------- gli halaphon dovvrebbero stare in nono.lib
 h1ramp = os.lf_sawpos(1.0/(hslider("[01] h1 time", 3.0, -23.0, 23.0, 0.01)));
 h2ramp = os.lf_sawpos(1.0/(hslider("[01] h2 time", 3.0, -23.0, 23.0, 0.01)));
 h3ramp = os.lf_sawpos(1.0/(hslider("[01] h3 time", 3.0, -23.0, 23.0, 0.01)));
@@ -68,11 +68,11 @@ hal1 = vgroup("h1", sp.spat(4, h1ramp, h1dist) : h1meters);
 hal2 = vgroup("h2", sp.spat(4, h2ramp, h2dist) : h2meters);
 hal3 = vgroup("h3", sp.spat(4, h3ramp, h3dist) : h3meters);
 
-hals = hgroup("HALAPHONES", hal1, hal2, hal3 :> si.bus(4));
+hals = hgroup("HALAPHONS", hal1, hal2, hal3 :> si.bus(4));
 
-rev4 =  _ <: reverb4(16,5,3);
+rev4 =  _ <: rev_quattro(16,5,3);
 
-rev80 = _ <: reverb80(16,5,3);
+rev80 = _ <: rev_ottanta(16,5,3);
 
 ch1a8 = delbank, rev80 :> si.bus(8);
 

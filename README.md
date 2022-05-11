@@ -8,6 +8,6 @@ Live Electronics process prototype:
  - [ ] Reverb 10~80"
  - [ ] Harmonizer
  - [ ] Delay Bank
- - [ ] Halaphone  
+ - [ ] Halaphon  
 
  - **v0.2.0** compiled with `faust2caqt -preset /Users/terminal/Documents/faustpresets/ reverb4sec.dsp`
